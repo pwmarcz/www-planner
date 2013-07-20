@@ -1,5 +1,8 @@
 # -*- coding: utf-8; -*-
 
+import re
+
+# Konieczka - na początku
 # Karasek - nie na początku
 # Funkcyjne - nie na początku
 # Orlef - od 13 sierpnia
@@ -9,9 +12,9 @@
 
 import copy
 
-COLL_LIMIT = 2
+COLL_LIMIT = 4
 WORKSHOP_LIMIT = 4
-PLAN_COLL_LIMIT = 6
+PLAN_COLL_LIMIT = 12
 
 SLOT_MIN_WORKSHOPS = [3,3,2,2,3,3]
 
@@ -122,50 +125,67 @@ WORKSHOP_DATA = [
 },
 ]
 
-COR = [
- [3, 0, 2, 0, 0, 0, 1, 1, 0, 0, 1, 0, 0, 0, 0, 2, 2, 0, 0, 0],
- [0, 6, 0, 0, 0, 0, 2, 5, 0, 0, 3, 0, 0, 4, 0, 0, 1, 1, 5, 0],
- [2, 0, 9, 1, 5, 0, 1, 1, 0, 0, 1, 3, 0, 0, 2, 6, 3, 2, 0, 0],
- [0, 0, 1, 7, 0, 2, 2, 0, 0, 0, 1, 0, 4, 0, 6, 1, 0, 4, 0, 0],
- [0, 0, 5, 0, 10, 1, 1, 1, 1, 0, 1, 4, 0, 0, 2, 6, 2, 1, 0, 0],
- [0, 0, 0, 2, 1, 7, 1, 0, 0, 0, 0, 0, 1, 0, 5, 2, 1, 4, 0, 0],
- [1, 2, 1, 2, 1, 1, 11, 3, 1, 1, 6, 1, 3, 3, 3, 4, 1, 1, 2, 2],
- [1, 5, 1, 0, 1, 0, 3, 8, 2, 1, 5, 0, 0, 4, 0, 1, 1, 0, 4, 0],
- [0, 0, 0, 0, 1, 0, 1, 2, 5, 2, 2, 0, 0, 2, 1, 0, 0, 0, 0, 1],
- [0, 0, 0, 0, 0, 0, 1, 1, 2, 4, 3, 0, 0, 2, 0, 0, 0, 0, 1, 1],
- [1, 3, 1, 1, 1, 0, 6, 5, 2, 3, 11, 0, 2, 5, 2, 2, 1, 0, 3, 2],
- [0, 0, 3, 0, 4, 0, 1, 0, 0, 0, 0, 6, 0, 1, 0, 5, 0, 0, 0, 0],
- [0, 0, 0, 4, 0, 1, 3, 0, 0, 0, 2, 0, 8, 0, 6, 0, 1, 4, 0, 1],
- [0, 4, 0, 0, 0, 0, 3, 4, 2, 2, 5, 1, 0, 10, 1, 1, 1, 0, 4, 1],
- [0, 0, 2, 6, 2, 5, 3, 0, 1, 0, 2, 0, 6, 1, 14, 1, 2, 7, 0, 1],
- [2, 0, 6, 1, 6, 2, 4, 1, 0, 0, 2, 5, 0, 1, 1, 12, 3, 1, 0, 0],
- [2, 1, 3, 0, 2, 1, 1, 1, 0, 0, 1, 0, 1, 1, 2, 3, 7, 1, 1, 0],
- [0, 1, 2, 4, 1, 4, 1, 0, 0, 0, 0, 0, 4, 0, 7, 1, 1, 11, 1, 0],
- [0, 5, 0, 0, 0, 0, 2, 4, 0, 1, 3, 0, 0, 4, 0, 0, 1, 1, 6, 0],
- [0, 0, 0, 0, 0, 0, 2, 0, 1, 1, 2, 0, 1, 1, 1, 0, 0, 0, 0, 3],
-]
-
 class Workshop(object):
     def __init__(self, i, data):
         self.i = i
+        self.id = data['id']
+        self.drop = data.get('drop', False)
         self.name = data['name']
+        self.prow = data['prow']
         self.typ = data.get('typ', '3')
         self.slots_allowed = data.get('slots', [1,2,5,6])
+        self.users = set()
 
     def draw(self):
-        return self.name[:20]
+        return '<b>%s</b> (%s)' % (self.name[:20], self.prow)
 
     def collWith(self, w):
-        return COR[self.i][w.i]
+        return len(self.users & w.users)
 
     def participants(self):
-        return COR[self.i][self.i]
+        return len(self.users)
 
 WORKSHOPS = []
 
 for i, data in enumerate(WORKSHOP_DATA):
-    if not data.get('drop'):
-        WORKSHOPS.append(Workshop(i, data))
+    WORKSHOPS.append(Workshop(i, data))
+
+
+######## WORKSHOP USERS
+
+'''
+select u.uid, u.name, wu.wid, w.title
+from
+w1_edition_users eu
+join w1_users u on eu.uid=u.uid
+join w1_workshop_users wu on u.uid=wu.uid
+join w1_workshops w on wu.wid=w.wid
+where
+eu.edition=9 and
+w.edition=9 and
+qualified=1 and
+w.status=4 and
+w.type=1 and
+participant>0;
+'''
+
+QUERY_RESULT_FILE = 'q.txt'
+
+def parse_table(s):
+    for row in re.findall(r'<tr>(.*?)</tr>', s):
+        yield list(re.findall(r'<td>(.*?)</td>', row))
+
+def read_query(table):
+    for _i, _uid, name, wid, wtitle in table:
+        wid = int(wid)
+        for w in WORKSHOPS:
+            if w.id == wid:
+                w.users.add(name)
+                break
+        else:
+            assert False, 'weird workshop ID: %d (%s)' % (wid, wtitle)
+
+read_query(parse_table(open(QUERY_RESULT_FILE).read()))
 
 class Slot(object):
     def __init__(self, n):
@@ -228,9 +248,14 @@ class Plan(object):
             for m, slot in zip(SLOT_MIN_WORKSHOPS, self.slots):
                 if len(slot.workshops) < m:
                     return
+            self
             yield
             return
         w = WORKSHOPS[i]
+        if w.drop:
+            for _ in self.find_all(i+1):
+                yield
+            return
         for slot in self.slots:
             if slot.add(w):
                 if self.badness() <= PLAN_COLL_LIMIT:
@@ -249,7 +274,7 @@ def main():
                     <style>
                     td {
                         border: 1px solid black;
-                        width: 15em;
+                        width: 20em;
                     }
                     </style>
                     ''')
