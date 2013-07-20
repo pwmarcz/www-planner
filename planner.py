@@ -16,7 +16,7 @@ COLL_LIMIT = 4
 WORKSHOP_LIMIT = 4
 PLAN_COLL_LIMIT = 12
 
-SLOT_MIN_WORKSHOPS = [3,3,2,2,3,3]
+SLOT_MIN_WORKSHOPS = [3,3,3,3,3,3]
 
 WORKSHOP_DATA = [
 {'id': 154,
@@ -81,12 +81,23 @@ WORKSHOP_DATA = [
 
  'slots': [5,6],
 },
+
+# HACK - powtórzone
+
 {'id': 139,
  'name': u"Spektroskopia zrób to sam",
  'prow': u'Łukasz Mioduszewski',
 
- 'drop': True,
+ 'slots': [3],
 },
+
+{'id': 139,
+ 'name': u"Spektroskopia zrób to sam",
+ 'prow': u'Łukasz Mioduszewski',
+
+ 'slots': [4],
+},
+
 {'id': 159,
  'name': u"Struktury na Q",
  'prow': u'Damian Orlef',
@@ -181,9 +192,6 @@ def read_query(table):
         for w in WORKSHOPS:
             if w.id == wid:
                 w.users.add(name)
-                break
-        else:
-            assert False, 'weird workshop ID: %d (%s)' % (wid, wtitle)
 
 read_query(parse_table(open(QUERY_RESULT_FILE).read()))
 
@@ -248,7 +256,6 @@ class Plan(object):
             for m, slot in zip(SLOT_MIN_WORKSHOPS, self.slots):
                 if len(slot.workshops) < m:
                     return
-            self
             yield
             return
         w = WORKSHOPS[i]
