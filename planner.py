@@ -14,7 +14,7 @@ import copy
 
 COLL_LIMIT = 4
 WORKSHOP_LIMIT = 4
-PLAN_COLL_LIMIT = 12
+PLAN_COLL_LIMIT = 15
 
 SLOT_MIN_WORKSHOPS = [3,3,3,3,3,3]
 
@@ -33,13 +33,13 @@ WORKSHOP_DATA = [
  'name': u"Ewolucja wczesnego Wszechświata w modelu Wielkiego Wybuchu i w Inflacji",
  'prow': u'Maciej Konieczka',
 
- 'slots': [1],
+ 'drop': True,
 },
 {'id': 161,
  'name': u"Funkcje arytmetyczne w teorii liczb",
  'prow': u'Paweł Karasek',
 
- 'drop': True,
+ 'slots': [5,6],
 },
 {'id': 130,
  'name': u"Gwiazdy zmienne",
