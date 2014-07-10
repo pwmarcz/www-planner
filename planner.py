@@ -1,21 +1,58 @@
 # -*- coding: utf-8; -*-
 
 import re
-
-# Konieczka - na początku
-# Karasek - nie na początku
-# Funkcyjne - nie na początku
-# Orlef - od 13 sierpnia
-# Ola Hamanowicz (z Marzeną) 17 rano
-
-# Spektroskopia - rano i wieczorem w 2. bloku
-
 import copy
 
+'''
+
+WWW Planner
+
+Program do układania planu warsztatów na WWW. Uwzględnia możliwości
+prowadzących, oraz preferencje uczestników, aby wygenerować jak najbardziej
+bezkolizyjny plan.
+
+Program zakłada istnienie 6 slotów - 1 i 2 to pierwszy slot warsztatowy
+poranny i pierwszy wieczorny, 3 i 4 to drugi poranny i wieczorny, 5 i 6 to dwa
+ostatnie. Każde warsztaty zajmują 1 z tych slotów.
+
+Będziesz potrzebować
+- listy warsztatów - do wklepania ręcznie,
+- listy uczestników na warszatach - do wydostania z aplikacji WWW.
+
+Instrukcja:
+
+1. Wpisz warsztaty (http://warsztatywww.nstrefa.pl/listAllWorkshops) do
+   tabelki WORKSHOP_DATA. 'id' to numer w aplikacji warsztatowej.
+
+2. Wejdź na http://warsztatywww.nstrefa.pl/databaseRaw (uwaga - to
+   niebezpieczne narzędzie!) i wklej tam zawartość zmiennej QUERY. Powinieneś
+   dostać długą tabelkę. Wejdź w źródło (Ctrl-U) i przeklej całe "<table>" do
+   pliku q.txt.
+
+3. Uruchom "python planner.py", powinien wygenerować ci tabelkę do pliku
+   plans.html z proponowanymi planami.
+
+   Jeśli ci nie odpowiadają, pozmieniaj parametry poniżej i spróbuj jeszcze
+   raz. Niższe parametry pozwalają na szybsze działanie programu, ale
+   ograniczają przestrzeń poszukiwań.
+
+Powodzenia!
+
+'''
+
+# PARAMETRY
+
+# Maksymalna liczba wspólnych uczestników między dwoma blokami warsztatowymi w
+# tym samym slocie
 COLL_LIMIT = 4
+
+# Maksymalna liczba warsztatów na jeden slot
 WORKSHOP_LIMIT = 4
+
+# Maksymalna liczba kolicji w sumie
 PLAN_COLL_LIMIT = 15
 
+# Minimalna liczba warsztatów na slot
 SLOT_MIN_WORKSHOPS = [3,3,3,3,3,3]
 
 WORKSHOP_DATA = [
@@ -127,6 +164,8 @@ WORKSHOP_DATA = [
 {'id': 150,
  'name': u"Tworzenie debuggerów",
  'prow': u'Michał Kowalczyk',
+
+ 'slots': [5,6],
 },
 {'id': 132,
  'name': u"Złożoność komunikacyjna",
@@ -165,19 +204,26 @@ for i, data in enumerate(WORKSHOP_DATA):
 ######## WORKSHOP USERS
 
 '''
+Zapytanie wyciągające informację o uczestnikach.
+
+Wytłumaczenie magicznych liczb jest pod adresem:
+https://code.google.com/p/www-app/source/browse/enum.php
+'''
+
+QUERY = '''
 select u.uid, u.name, wu.wid, w.title
-from
+  from
 w1_edition_users eu
 join w1_users u on eu.uid=u.uid
 join w1_workshop_users wu on u.uid=wu.uid
 join w1_workshops w on wu.wid=w.wid
-where
-eu.edition=9 and
-w.edition=9 and
-qualified=1 and
-w.status=4 and
-w.type=1 and
-participant>0;
+  where
+eu.edition=10 and  -- 10 edycja warsztatów
+w.edition=10 and   -- jw.
+eu.qualified=1 and -- uczestnicy zakwalifikowani na warsztaty
+w.status=4 and     -- warszaty zostały zaakceptowane           (blockStatus)
+w.type=1 and       -- warsztaty (nie luźny wykład)             (blockType)
+participant>0;     -- zgłosił chęć uczestnictwa                (participantStatus)
 '''
 
 QUERY_RESULT_FILE = 'q.txt'
