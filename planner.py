@@ -27,10 +27,11 @@ Instrukcja:
 2. Wejdź na http://warsztatywww.nstrefa.pl/databaseRaw (uwaga - to
    niebezpieczne narzędzie!) i wklej tam zawartość zmiennej QUERY. Powinieneś
    dostać długą tabelkę. Wejdź w źródło (Ctrl-U) i przeklej całe "<table>" do
-   pliku q.txt.
+   pliku "q.txt".
 
 3. Uruchom "python planner.py", powinien wygenerować ci tabelkę do pliku
-   plans.html z proponowanymi planami.
+   plans.html z proponowanymi planami. Liczba w nawiasach przy slocie oznacza
+   sumaryczną liczbę kolizji.
 
    Jeśli ci nie odpowiadają, pozmieniaj parametry poniżej i spróbuj jeszcze
    raz. Niższe parametry pozwalają na szybsze działanie programu, ale
