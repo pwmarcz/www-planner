@@ -55,6 +55,7 @@ PLAN_COLL_LIMIT = 15
 # Minimalna liczba warsztatów na slot
 SLOT_MIN_WORKSHOPS = [3,3,3,3,3,3]
 
+# Dane o warsztatach
 WORKSHOP_DATA = [
 {'id': 154,
  'name': u"Algebra liniowa i kombinatoryka",
@@ -218,7 +219,7 @@ join w1_users u on eu.uid=u.uid
 join w1_workshop_users wu on u.uid=wu.uid
 join w1_workshops w on wu.wid=w.wid
   where
-eu.edition=10 and  -- 10 edycja warsztatów
+eu.edition=10 and  -- 10. edycja warsztatów
 w.edition=10 and   -- jw.
 eu.qualified=1 and -- uczestnicy zakwalifikowani na warsztaty
 w.status=4 and     -- warszaty zostały zaakceptowane           (blockStatus)
