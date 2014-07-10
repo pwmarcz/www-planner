@@ -323,6 +323,14 @@ def main():
         i = 0
         p = Plan()
         print 'Searching...'
+        f.write('''
+        <!doctype html>
+        <head>
+          <title>WWW Planner</title>
+          <meta charset='utf-8'>
+        </head>
+        <body>
+        ''')
         for _ in p.find_all():
             i += 1
             f.write('''
