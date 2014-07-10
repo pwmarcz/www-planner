@@ -24,6 +24,9 @@ Instrukcja:
 1. Wpisz warsztaty (http://warsztatywww.nstrefa.pl/listAllWorkshops) do
    tabelki WORKSHOP_DATA. 'id' to numer w aplikacji warsztatowej.
 
+   Dopuszczalne sloty powinny uwzględniać ograniczenia podane przez
+   prowadzących.
+
 2. Wejdź na http://warsztatywww.nstrefa.pl/databaseRaw (uwaga - to
    niebezpieczne narzędzie!) i wklej tam zawartość zmiennej QUERY. Powinieneś
    dostać długą tabelkę. Wejdź w źródło (Ctrl-U) i przeklej całe "<table>" do
